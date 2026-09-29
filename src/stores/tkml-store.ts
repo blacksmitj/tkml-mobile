@@ -41,6 +41,10 @@ interface TKMLState {
 
   // RAB & LPJ
   rabList: ItemRAB[];
+  addRabItem: (item: Omit<ItemRAB, 'id' | 'status' | 'subtotal'>) => void;
+  updateRabItem: (id: string, item: Partial<ItemRAB>) => void;
+  deleteRabItem: (id: string) => void;
+
   lpjList: NotaLPJ[];
   addLpjNota: (nota: Omit<NotaLPJ, 'id' | 'createdAt'>) => void;
   deleteLpjNota: (id: string) => void;
@@ -125,6 +129,47 @@ export const useTKMLStore = create<TKMLState>((set, get) => ({
   },
 
   rabList: INITIAL_RAB,
+  addRabItem: (itemData) => {
+    const subtotal = itemData.volume * itemData.hargaSatuan;
+    const newItem: ItemRAB = {
+      ...itemData,
+      id: `rab-${Date.now()}`,
+      subtotal,
+      status: 'menunggu',
+      catatan: 'Menunggu peninjauan & verifikasi tim Kemnaker',
+    };
+    set((state) => ({
+      rabList: [...state.rabList, newItem],
+    }));
+    get().showToast('Item usulan RAB berhasil diajukan.', 'success');
+  },
+  updateRabItem: (id, updatedData) => {
+    set((state) => ({
+      rabList: state.rabList.map((item) => {
+        if (item.id === id) {
+          const volume = updatedData.volume !== undefined ? updatedData.volume : item.volume;
+          const hargaSatuan =
+            updatedData.hargaSatuan !== undefined ? updatedData.hargaSatuan : item.hargaSatuan;
+          const subtotal = volume * hargaSatuan;
+          return {
+            ...item,
+            ...updatedData,
+            subtotal,
+            status: 'menunggu', // Reset ke menunggu verifikasi jika diedit peserta
+          };
+        }
+        return item;
+      }),
+    }));
+    get().showToast('Item usulan RAB berhasil diperbarui.', 'success');
+  },
+  deleteRabItem: (id) => {
+    set((state) => ({
+      rabList: state.rabList.filter((item) => item.id !== id),
+    }));
+    get().showToast('Item usulan RAB berhasil dihapus.', 'info');
+  },
+
   lpjList: INITIAL_LPJ,
   addLpjNota: (notaData) => {
     const newNota: NotaLPJ = {

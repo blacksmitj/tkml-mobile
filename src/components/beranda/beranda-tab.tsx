@@ -12,13 +12,17 @@ import { useTKMLStore } from '@/stores/tkml-store';
 import { ColorPalette } from '@/constants/colors';
 import { UserHeader } from '@/components/beranda/user-header';
 import { ProgressStepper } from '@/components/beranda/progress-stepper';
-import { AlertRevisiCard } from '@/components/beranda/alert-revisi-card';
+import { ActionCenterNotifications } from '@/components/beranda/action-center-notifications';
 import { ProgramMenuGrid } from '@/components/beranda/program-menu-grid';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Store, ChevronRight, Sparkles, MapPin } from 'lucide-react-native';
+import { Store, ChevronRight, Sparkles } from 'lucide-react-native';
 
 interface BerandaTabProps {
   onOpenBerkas: () => void;
+  onOpenProfilUsaha: () => void;
+  onOpenAlamat: () => void;
+  onOpenNib: () => void;
+  onOpenNpwp: () => void;
+  onOpenRekening: () => void;
   onOpenKaryawan: () => void;
   onOpenRAB: () => void;
   onOpenBizHub: () => void;
@@ -26,6 +30,11 @@ interface BerandaTabProps {
 
 export const BerandaTab: React.FC<BerandaTabProps> = ({
   onOpenBerkas,
+  onOpenProfilUsaha,
+  onOpenAlamat,
+  onOpenNib,
+  onOpenNpwp,
+  onOpenRekening,
   onOpenKaryawan,
   onOpenRAB,
   onOpenBizHub,
@@ -33,6 +42,18 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
   const { user, berkasList, karyawanList, rabList, lpjList, bizHubAds } = useTKMLStore();
 
   const berkasPerluRevisi = berkasList.filter((b) => b.status === 'perlu_revisi');
+  const isProfilIncomplete =
+    user.statusProfilUsaha === 'perlu_revisi' || user.statusProfilUsaha === 'belum_lengkap';
+  const isAlamatIncomplete =
+    user.statusAlamat === 'perlu_revisi' || user.statusAlamat === 'belum_lengkap';
+  
+  const isNibIncomplete =
+    user.nib.status === 'perlu_revisi' || user.nib.status === 'belum_lengkap';
+  const isNpwpIncomplete =
+    user.npwp.status === 'perlu_revisi' || user.npwp.status === 'belum_lengkap';
+  const isRekeningIncomplete =
+    user.rekeningBank.status === 'perlu_revisi' || user.rekeningBank.status === 'belum_lengkap';
+
   const totalKaryawan = karyawanList.length;
   const totalDisabilitas = karyawanList.filter((k) => k.disabilitas !== 'tidak_ada').length;
 
@@ -41,7 +62,7 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
   const progressLPJPercent =
     totalUsulan > 0 ? Math.min(100, Math.round((totalRealisasi / totalUsulan) * 100)) : 0;
 
-  const catatanRevisi = berkasPerluRevisi
+  const catatanRevisiBerkas = berkasPerluRevisi
     .map((b) => `${b.nama}: ${b.catatanAdmin || 'Harap perbaiki dokumen'}`)
     .filter(Boolean);
 
@@ -58,11 +79,26 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
           {/* Stepper Progres Program */}
           <ProgressStepper currentTahap={user.tahapanProgram} />
 
-          {/* Alert Revisi jika ada dokumen bermasalah */}
-          <AlertRevisiCard
-            jumlahRevisi={berkasPerluRevisi.length}
-            catatanList={catatanRevisi}
-            onPressAction={onOpenBerkas}
+          {/* Action Center Notifications (NIB, NPWP, Rekening, Berkas, Profil, Alamat) */}
+          <ActionCenterNotifications
+            berkasRevisiCount={berkasPerluRevisi.length}
+            isProfilIncomplete={isProfilIncomplete}
+            isAlamatIncomplete={isAlamatIncomplete}
+            isNibIncomplete={isNibIncomplete}
+            isNpwpIncomplete={isNpwpIncomplete}
+            isRekeningIncomplete={isRekeningIncomplete}
+            catatanRevisiBerkas={catatanRevisiBerkas}
+            catatanRevisiProfil={user.catatanRevisiProfil}
+            catatanRevisiAlamat={user.catatanRevisiAlamat}
+            catatanRevisiNib={user.nib.catatanRevisi}
+            catatanRevisiNpwp={user.npwp.catatanRevisi}
+            catatanRevisiRekening={user.rekeningBank.catatanRevisi}
+            onOpenBerkas={onOpenBerkas}
+            onOpenProfilUsaha={onOpenProfilUsaha}
+            onOpenAlamat={onOpenAlamat}
+            onOpenNib={onOpenNib}
+            onOpenNpwp={onOpenNpwp}
+            onOpenRekening={onOpenRekening}
           />
 
           {/* Banner Shortcut ke BizHub (Bisnis Hub) */}

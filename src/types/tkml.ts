@@ -1,23 +1,71 @@
 export type TahapanProgram = 'registrasi' | 'review_berkas' | 'tahap_rab' | 'tahap_lpj';
 
+export type DetailAlamat = {
+  jalan: string;
+  rtRw: string;
+  kelurahanDesa: string;
+  kecamatan: string;
+  kotaKabupaten: string;
+  provinsi: string;
+  kodePos: string;
+  isComplete: boolean;
+};
+
+export type LegalitasItem = {
+  nomor: string;
+  namaTerdaftar: string;
+  fileUri?: string;
+  fileSizeFormatted?: string;
+  uploadedAt?: string;
+  status: 'lengkap' | 'belum_lengkap' | 'perlu_revisi';
+  catatanRevisi?: string;
+};
+
+export type RekeningBankItem = {
+  bankName: string;
+  bankAccountNo: string;
+  bankAccountName: string;
+  bankKcp: string;
+  bukuTabunganUri?: string;
+  fileSizeFormatted?: string;
+  uploadedAt?: string;
+  status: 'lengkap' | 'belum_lengkap' | 'perlu_revisi';
+  catatanRevisi?: string;
+};
+
 export type UserProfile = {
   id: string;
   namaLengkap: string;
   namaUsaha: string;
   idTKML: string;
   tahapanProgram: TahapanProgram;
+  paguBantuanKemnaker: number;
   fotoUrl?: string;
   email?: string;
   noHp?: string;
+  
+  // Profil Usaha Dasar
   kbli?: string;
   sektorUsaha?: string;
-  alamatKtp?: string;
-  alamatUsaha?: string;
-  bankName?: string;
-  bankAccountNo?: string;
-  bankAccountName?: string;
-  bankKcp?: string;
-  daerah?: string; // e.g., 'Kab. Bandung Barat'
+  deskripsiUsaha?: string;
+  tahunMulaiUsaha?: string;
+  daerah?: string;
+
+  // Modul Khusus: NIB, NPWP, Rekening
+  nib: LegalitasItem;
+  npwp: LegalitasItem;
+  rekeningBank: RekeningBankItem;
+
+  // 3 Detail Alamat Terstruktur
+  alamatKtp: DetailAlamat;
+  alamatUsaha: DetailAlamat;
+  alamatDomisili: DetailAlamat;
+
+  // Flag Status Kelengkapan & Revisi Global
+  statusProfilUsaha: 'lengkap' | 'belum_lengkap' | 'perlu_revisi';
+  statusAlamat: 'lengkap' | 'belum_lengkap' | 'perlu_revisi';
+  catatanRevisiProfil?: string;
+  catatanRevisiAlamat?: string;
 };
 
 export type StatusBerkas = 'belum_diunggah' | 'menunggu' | 'diverifikasi' | 'perlu_revisi';
@@ -91,6 +139,7 @@ export type ProdukUsaha = {
   hargaJual: number;
   kapasitasProduksi: string;
   fotoUris: string[];
+  isPrimary?: boolean;
 };
 
 export type KategoriBizHub =
@@ -110,9 +159,9 @@ export type BizHubAd = {
   kategori: KategoriBizHub;
   deskripsi: string;
   harga: number;
-  satuanHarga: string; // e.g., 'per kg', 'per 100 pcs', 'per unit'
-  lokasiDaerah: string; // e.g., 'Kec. Lembang, Kab. Bandung Barat'
-  jarakKm: number; // e.g., 2.5
+  satuanHarga: string;
+  lokasiDaerah: string;
+  jarakKm: number;
   noWhatsapp: string;
   fotoProdukUri: string;
   isVerifiedTKML: boolean;

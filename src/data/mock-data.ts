@@ -10,13 +10,77 @@ export const INITIAL_USER: UserProfile = {
   noHp: '081234567890',
   kbli: '10761 - Industri Pengolahan Kopi',
   sektorUsaha: 'Kuliner & Pengolahan Pangan',
-  alamatKtp: 'Jl. Merdeka No. 45, RT 02/RW 05, Kec. Lembang, Kab. Bandung Barat, Jawa Barat',
-  alamatUsaha: 'Jl. Raya Tangkuban Parahu No. 88, Kec. Lembang, Kab. Bandung Barat',
-  bankName: 'Bank Mandiri',
-  bankAccountNo: '1310012345678',
-  bankAccountName: 'BUDI SETIAWAN',
-  bankKcp: 'KCP Lembang Bandung Barat',
   daerah: 'Kab. Bandung Barat',
+  paguBantuanKemnaker: 30000000,
+
+  // NIB OSS
+  nib: {
+    nomor: '1234567890123',
+    namaTerdaftar: 'UD. KOPI MANDIRI BAROKAH',
+    fileUri: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600',
+    fileSizeFormatted: '480 KB',
+    uploadedAt: '2026-09-20 11:30',
+    status: 'lengkap',
+  },
+
+  // NPWP
+  npwp: {
+    nomor: '321701234567000',
+    namaTerdaftar: 'BUDI SETIAWAN',
+    fileUri: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600',
+    fileSizeFormatted: '512 KB',
+    uploadedAt: '2026-09-28 14:20',
+    status: 'lengkap',
+  },
+
+  // Rekening Bank
+  rekeningBank: {
+    bankName: 'Bank Mandiri',
+    bankAccountNo: '1310012345678',
+    bankAccountName: 'BUDI SETIAWAN',
+    bankKcp: 'KCP Lembang Bandung Barat',
+    bukuTabunganUri: 'https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?w=600',
+    fileSizeFormatted: '790 KB',
+    uploadedAt: '2026-09-27 16:45',
+    status: 'perlu_revisi',
+    catatanRevisi: 'Foto buku rekening agak buram pada digit terakhir nomor rekening, mohon upload ulang foto yang lebih tajam.',
+  },
+  
+  // 3 Detail Alamat Terstruktur
+  alamatKtp: {
+    jalan: 'Jl. Merdeka No. 45',
+    rtRw: 'RT 02 / RW 05',
+    kelurahanDesa: 'Lembang',
+    kecamatan: 'Lembang',
+    kotaKabupaten: 'Kab. Bandung Barat',
+    provinsi: 'Jawa Barat',
+    kodePos: '40391',
+    isComplete: true,
+  },
+  alamatUsaha: {
+    jalan: 'Jl. Raya Tangkuban Parahu No. 88',
+    rtRw: 'RT 01 / RW 03',
+    kelurahanDesa: 'Cikole',
+    kecamatan: 'Lembang',
+    kotaKabupaten: 'Kab. Bandung Barat',
+    provinsi: 'Jawa Barat',
+    kodePos: '40391',
+    isComplete: true,
+  },
+  alamatDomisili: {
+    jalan: '',
+    rtRw: '',
+    kelurahanDesa: '',
+    kecamatan: '',
+    kotaKabupaten: '',
+    provinsi: '',
+    kodePos: '',
+    isComplete: false, // Belum lengkap -> Memunculkan notifikasi
+  },
+
+  statusProfilUsaha: 'lengkap',
+  statusAlamat: 'belum_lengkap',
+  catatanRevisiAlamat: 'Alamat domisili tempat tinggal saat ini belum diisi lengkap oleh peserta.',
 };
 
 export const INITIAL_BERKAS: BerkasItem[] = [

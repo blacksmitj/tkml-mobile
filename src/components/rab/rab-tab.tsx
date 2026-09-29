@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTKMLStore } from '@/stores/tkml-store';
+import { ItemRAB } from '@/types/tkml';
 import { LpjNotaFormData } from '@/utils/validators';
 import { ColorPalette } from '@/constants/colors';
 import { RabItemCard } from '@/components/rab/rab-item-card';
+import { RabItemFormModal } from '@/components/rab/rab-item-form-modal';
 import { LpjNotaCard } from '@/components/rab/lpj-nota-card';
 import { LpjNotaFormModal } from '@/components/rab/lpj-nota-form-modal';
 import { formatRupiah } from '@/utils/formatters';
@@ -25,25 +27,91 @@ import {
   Coins,
   TrendingUp,
   X,
+  PackagePlus,
+  Info,
+  ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export const RabTab: React.FC = () => {
-  const { rabList, lpjList, addLpjNota, deleteLpjNota } = useTKMLStore();
+  const {
+    user,
+    rabList,
+    addRabItem,
+    updateRabItem,
+    deleteRabItem,
+    lpjList,
+    addLpjNota,
+    deleteLpjNota,
+  } = useTKMLStore();
+
   const [activeSubTab, setActiveSubTab] = useState<'usulan' | 'realisasi'>('usulan');
 
-  // Modal Form State
-  const [formModalVisible, setFormModalVisible] = useState(false);
+  // Modals
+  const [rabModalVisible, setRabModalVisible] = useState(false);
+  const [selectedRabItem, setSelectedRabItem] = useState<ItemRAB | null>(null);
+
+  const [lpjModalVisible, setLpjModalVisible] = useState(false);
 
   // Fullscreen Photo Preview
   const [previewUri, setPreviewUri] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState('');
 
+  // Pagu Kemnaker & Perhitungan
+  const paguKemnaker = user.paguBantuanKemnaker || 30000000;
   const totalUsulan = rabList.reduce((acc, item) => acc + item.subtotal, 0);
   const totalRealisasi = lpjList.reduce((acc, item) => acc + item.nominalRiil, 0);
-  const persentaseRealisasi = totalUsulan > 0 ? Math.min(100, Math.round((totalRealisasi / totalUsulan) * 100)) : 0;
 
+  const sisaPaguUsulan = paguKemnaker - totalUsulan;
+  const isOverPagu = sisaPaguUsulan < 0;
+
+  const persentasePaguTerpakai = Math.min(100, Math.round((totalUsulan / paguKemnaker) * 100));
+  const persentaseRealisasiLPJ =
+    totalUsulan > 0 ? Math.min(100, Math.round((totalRealisasi / totalUsulan) * 100)) : 0;
+
+  // Handler Usulan RAB
+  const handleOpenAddRab = () => {
+    setSelectedRabItem(null);
+    setRabModalVisible(true);
+  };
+
+  const handleOpenEditRab = (item: ItemRAB) => {
+    setSelectedRabItem(item);
+    setRabModalVisible(true);
+  };
+
+  const handleDeleteRab = (id: string) => {
+    Alert.alert(
+      'Hapus Item Usulan RAB',
+      'Apakah Anda yakin ingin menghapus item usulan anggaran ini?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Ya, Hapus',
+          style: 'destructive',
+          onPress: () => deleteRabItem(id),
+        },
+      ]
+    );
+  };
+
+  const handleSubmitRabForm = (data: {
+    namaBarang: string;
+    spesifikasi: string;
+    volume: number;
+    satuan: string;
+    hargaSatuan: number;
+  }) => {
+    if (selectedRabItem) {
+      updateRabItem(selectedRabItem.id, data);
+    } else {
+      addRabItem(data);
+    }
+  };
+
+  // Handler Realisasi LPJ
   const handleDeleteNota = (id: string) => {
     Alert.alert(
       'Hapus Nota Realisasi',
@@ -59,7 +127,7 @@ export const RabTab: React.FC = () => {
     );
   };
 
-  const handleFormSubmit = (data: LpjNotaFormData) => {
+  const handleSubmitLpjForm = (data: LpjNotaFormData) => {
     addLpjNota(data);
   };
 
@@ -74,37 +142,73 @@ export const RabTab: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>RAB & Pelaporan LPJ</Text>
         <Text style={styles.headerSubtitle}>
-          Kelola usulan rincian anggaran belanja & laporkan realisasi kuitansi belanja.
+          Rencana Anggaran Belanja bantuan program Tenaga Kerja Mandiri Lanjutan.
         </Text>
 
-        {/* Budget Progress Summary Box */}
+        {/* Pagu Kemnaker & Progress Card */}
         <View style={styles.budgetCard}>
-          <View style={styles.budgetRow}>
-            <View>
-              <Text style={styles.budgetLabel}>Total Usulan Disetujui</Text>
-              <Text style={styles.budgetValue}>{formatRupiah(totalUsulan)}</Text>
+          <View style={styles.paguRow}>
+            <View style={styles.paguHeaderLeft}>
+              <ShieldCheck size={18} color={ColorPalette.primary[700]} />
+              <Text style={styles.paguTitle}>Pagu Bantuan Kemnaker</Text>
             </View>
+            <Text style={styles.paguValue}>{formatRupiah(paguKemnaker)}</Text>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.budgetStatsRow}>
+            <View>
+              <Text style={styles.statLabel}>Total Usulan RAB</Text>
+              <Text style={[styles.statValue, isOverPagu ? styles.textDanger : null]}>
+                {formatRupiah(totalUsulan)}
+              </Text>
+            </View>
+
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.budgetLabel}>Total Realisasi LPJ</Text>
-              <Text style={[styles.budgetValue, { color: ColorPalette.emerald[700] }]}>
-                {formatRupiah(totalRealisasi)}
+              <Text style={styles.statLabel}>
+                {isOverPagu ? 'Melebihi Pagu' : 'Sisa Pagu Belum Dialokasikan'}
+              </Text>
+              <Text
+                style={[
+                  styles.statValue,
+                  isOverPagu ? styles.textDanger : { color: ColorPalette.emerald[700] },
+                ]}>
+                {isOverPagu ? `+${formatRupiah(Math.abs(sisaPaguUsulan))}` : formatRupiah(sisaPaguUsulan)}
               </Text>
             </View>
           </View>
 
-          {/* Progress Bar */}
+          {/* Progress Bar Pagu Terpakai */}
           <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${persentaseRealisasi}%` }]} />
+            <View
+              style={[
+                styles.progressBarFill,
+                {
+                  width: `${persentasePaguTerpakai}%`,
+                  backgroundColor: isOverPagu ? ColorPalette.rose[600] : ColorPalette.primary[600],
+                },
+              ]}
+            />
           </View>
 
           <View style={styles.progressLabelRow}>
             <Text style={styles.progressPercentText}>
-              Penyerapan: {persentaseRealisasi}% dari pagu anggaran
+              Alokasi Pagu: {persentasePaguTerpakai}% ({rabList.length} Item)
             </Text>
-            <Text style={styles.sisaText}>
-              Sisa: {formatRupiah(Math.max(0, totalUsulan - totalRealisasi))}
+            <Text style={styles.realisasiText}>
+              Realisasi LPJ: {formatRupiah(totalRealisasi)} ({persentaseRealisasiLPJ}%)
             </Text>
           </View>
+
+          {isOverPagu && (
+            <View style={styles.overPaguAlert}>
+              <AlertTriangle size={14} color={ColorPalette.rose[700]} />
+              <Text style={styles.overPaguText}>
+                Total usulan melebihi pagu bantuan Kemnaker ({formatRupiah(paguKemnaker)}). Mohon sesuaikan harga atau volume usulan.
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Sub-tab Toggle */}
@@ -149,9 +253,31 @@ export const RabTab: React.FC = () => {
         showsVerticalScrollIndicator={false}>
         {activeSubTab === 'usulan' ? (
           <View style={styles.itemsList}>
-            {rabList.map((item) => (
-              <RabItemCard key={item.id} item={item} />
-            ))}
+            <View style={styles.hintNoticeBox}>
+              <Info size={16} color={ColorPalette.primary[700]} />
+              <Text style={styles.hintNoticeText}>
+                Pagu bantuan ditetapkan resmi oleh Kemnaker sebesar <Text style={{ fontWeight: '700' }}>{formatRupiah(paguKemnaker)}</Text>. Anda dapat menambah/mengedit item usulan sebelum diverifikasi admin.
+              </Text>
+            </View>
+
+            {rabList.length === 0 ? (
+              <View style={styles.emptyState}>
+                <FileCheck2 size={48} color={ColorPalette.slate[300]} />
+                <Text style={styles.emptyTitle}>Belum Ada Usulan Item RAB</Text>
+                <Text style={styles.emptyDesc}>
+                  Tekan tombol &quot;Tambah Usulan RAB&quot; di bawah untuk menyusun rincian rencana anggaran bantuan usaha Anda sesuai pagu Kemnaker.
+                </Text>
+              </View>
+            ) : (
+              rabList.map((item) => (
+                <RabItemCard
+                  key={item.id}
+                  item={item}
+                  onEdit={handleOpenEditRab}
+                  onDelete={handleDeleteRab}
+                />
+              ))
+            )}
           </View>
         ) : (
           <View style={styles.itemsList}>
@@ -181,22 +307,38 @@ export const RabTab: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* FAB Tambah Nota Realisasi LPJ */}
-      {activeSubTab === 'realisasi' && (
+      {/* Floating Action Buttons */}
+      {activeSubTab === 'usulan' ? (
         <TouchableOpacity
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: ColorPalette.primary[700] }]}
           activeOpacity={0.85}
-          onPress={() => setFormModalVisible(true)}>
+          onPress={handleOpenAddRab}>
+          <PackagePlus size={22} color="#FFFFFF" />
+          <Text style={styles.fabText}>Tambah Usulan RAB</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: ColorPalette.amber[600] }]}
+          activeOpacity={0.85}
+          onPress={() => setLpjModalVisible(true)}>
           <Plus size={22} color="#FFFFFF" strokeWidth={3} />
           <Text style={styles.fabText}>Input Nota Belanja</Text>
         </TouchableOpacity>
       )}
 
-      {/* Form Input Modal */}
+      {/* Modal Form Usulan RAB */}
+      <RabItemFormModal
+        visible={rabModalVisible}
+        onClose={() => setRabModalVisible(false)}
+        onSubmitItem={handleSubmitRabForm}
+        initialData={selectedRabItem}
+      />
+
+      {/* Modal Form Realisasi LPJ */}
       <LpjNotaFormModal
-        visible={formModalVisible}
-        onClose={() => setFormModalVisible(false)}
-        onSubmitData={handleFormSubmit}
+        visible={lpjModalVisible}
+        onClose={() => setLpjModalVisible(false)}
+        onSubmitData={handleSubmitLpjForm}
         rabItems={rabList}
       />
 
@@ -256,36 +398,67 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   budgetCard: {
-    backgroundColor: ColorPalette.slate[50],
-    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
     borderColor: ColorPalette.slate[200],
-    gap: 8,
+    gap: 10,
+    shadowColor: ColorPalette.slate[900],
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  budgetRow: {
+  paguRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  paguHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  paguTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: ColorPalette.primary[900],
+  },
+  paguValue: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: ColorPalette.primary[700],
+  },
+  divider: {
+    height: 1,
+    backgroundColor: ColorPalette.slate[100],
+  },
+  budgetStatsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  budgetLabel: {
+  statLabel: {
     fontSize: 11,
     color: ColorPalette.slate[500],
   },
-  budgetValue: {
-    fontSize: 15,
-    fontWeight: '800',
+  statValue: {
+    fontSize: 14,
+    fontWeight: '700',
     color: ColorPalette.slate[900],
     marginTop: 2,
   },
+  textDanger: {
+    color: ColorPalette.rose[600],
+  },
   progressBarBg: {
     height: 8,
-    backgroundColor: ColorPalette.slate[200],
+    backgroundColor: ColorPalette.slate[100],
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: ColorPalette.emerald[500],
     borderRadius: 4,
   },
   progressLabelRow: {
@@ -298,9 +471,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: ColorPalette.slate[700],
   },
-  sisaText: {
+  realisasiText: {
     fontSize: 11,
     color: ColorPalette.slate[500],
+  },
+  overPaguAlert: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: ColorPalette.rose[50],
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: ColorPalette.rose[200],
+  },
+  overPaguText: {
+    fontSize: 11,
+    color: ColorPalette.rose[900],
+    flex: 1,
+    lineHeight: 14,
   },
   tabToggle: {
     flexDirection: 'row',
@@ -345,6 +534,23 @@ const styles = StyleSheet.create({
   itemsList: {
     gap: 8,
   },
+  hintNoticeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: ColorPalette.primary[50],
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: ColorPalette.primary[200],
+    marginBottom: 4,
+  },
+  hintNoticeText: {
+    fontSize: 12,
+    color: ColorPalette.primary[900],
+    flex: 1,
+    lineHeight: 16,
+  },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -371,11 +577,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: ColorPalette.amber[600],
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 30,
-    shadowColor: ColorPalette.amber[800],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

@@ -1,21 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ItemRAB } from '@/types/tkml';
 import { ColorPalette } from '@/constants/colors';
 import { Badge } from '@/components/ui/badge';
 import { formatRupiah } from '@/utils/formatters';
-import { PackageCheck, CheckCircle2 } from 'lucide-react-native';
+import { PackageCheck, CheckCircle2, Clock, Edit2, Trash2, Lock } from 'lucide-react-native';
 
 interface RabItemCardProps {
   item: ItemRAB;
+  onEdit?: (item: ItemRAB) => void;
+  onDelete?: (id: string) => void;
 }
 
-export const RabItemCard: React.FC<RabItemCardProps> = ({ item }) => {
+export const RabItemCard: React.FC<RabItemCardProps> = ({ item, onEdit, onDelete }) => {
+  const isVerified = item.status === 'disetujui';
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <View style={styles.iconBox}>
-          <PackageCheck size={20} color={ColorPalette.primary[700]} />
+          <PackageCheck
+            size={20}
+            color={isVerified ? ColorPalette.emerald[700] : ColorPalette.primary[700]}
+          />
         </View>
         <View style={styles.titleWrap}>
           <Text style={styles.namaBarang}>{item.namaBarang}</Text>
@@ -44,12 +51,55 @@ export const RabItemCard: React.FC<RabItemCardProps> = ({ item }) => {
 
       <View style={styles.footerRow}>
         <Badge
-          label={item.status === 'disetujui' ? 'Disetujui Tim Kemnaker' : 'Sedang Ditinjau'}
-          variant={item.status === 'disetujui' ? 'success' : 'warning'}
-          icon={<CheckCircle2 size={13} color={ColorPalette.emerald[700]} />}
+          label={
+            isVerified
+              ? 'Disetujui Tim Kemnaker'
+              : item.status === 'ditolak'
+              ? 'Ditolak / Perlu Revisi'
+              : 'Menunggu Verifikasi (Draft)'
+          }
+          variant={isVerified ? 'success' : item.status === 'ditolak' ? 'danger' : 'warning'}
+          icon={
+            isVerified ? (
+              <CheckCircle2 size={13} color={ColorPalette.emerald[700]} />
+            ) : (
+              <Clock size={13} color={ColorPalette.amber[700]} />
+            )
+          }
         />
-        {item.catatan && <Text style={styles.catatanText}>{item.catatan}</Text>}
+
+        {/* Action Buttons: hanya muncul jika belum diverifikasi admin */}
+        {!isVerified ? (
+          <View style={styles.actionsBox}>
+            {onDelete && (
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                activeOpacity={0.7}
+                onPress={() => onDelete(item.id)}>
+                <Trash2 size={14} color={ColorPalette.rose[600]} />
+                <Text style={styles.deleteText}>Hapus</Text>
+              </TouchableOpacity>
+            )}
+
+            {onEdit && (
+              <TouchableOpacity
+                style={styles.editBtn}
+                activeOpacity={0.7}
+                onPress={() => onEdit(item)}>
+                <Edit2 size={14} color={ColorPalette.primary[700]} />
+                <Text style={styles.editText}>Edit</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
+          <View style={styles.lockedBox}>
+            <Lock size={12} color={ColorPalette.slate[400]} />
+            <Text style={styles.lockedText}>Terkunci</Text>
+          </View>
+        )}
       </View>
+
+      {item.catatan && <Text style={styles.catatanText}>{item.catatan}</Text>}
     </View>
   );
 };
@@ -137,6 +187,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: 8,
+    paddingTop: 4,
+  },
+  actionsBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  deleteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  deleteText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: ColorPalette.rose[600],
+  },
+  editBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: ColorPalette.primary[50],
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  editText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: ColorPalette.primary[700],
+  },
+  lockedBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: ColorPalette.slate[100],
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  lockedText: {
+    fontSize: 11,
+    color: ColorPalette.slate[500],
+    fontWeight: '600',
   },
   catatanText: {
     fontSize: 11,

@@ -15,14 +15,12 @@ import { BerkasItem } from '@/types/tkml';
 import { ColorPalette } from '@/constants/colors';
 import { BerkasCard } from '@/components/berkas/berkas-card';
 import { UploadModal } from '@/components/berkas/upload-modal';
-import { UsahaProdukSection } from '@/components/berkas/usaha-produk-section';
-import { FileText, Building2, X } from 'lucide-react-native';
+import { FileText, X, AlertCircle } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export const BerkasTab: React.FC = () => {
   const { berkasList, uploadBerkas } = useTKMLStore();
-  const [activeSubTab, setActiveSubTab] = useState<'berkas' | 'usaha'>('berkas');
 
   // Modal State
   const [selectedBerkas, setSelectedBerkas] = useState<BerkasItem | null>(null);
@@ -45,69 +43,41 @@ export const BerkasTab: React.FC = () => {
     }
   };
 
+  const berkasRevisiCount = berkasList.filter((b) => b.status === 'perlu_revisi').length;
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Tab Header */}
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Berkas & Profil Usaha</Text>
+        <Text style={styles.headerTitle}>Dokumen Berkas Persyaratan</Text>
         <Text style={styles.headerSubtitle}>
-          Lengkapi identitas, dokumen legalitas, dan katalog produk usaha Anda.
+          Unggah foto e-KTP, Kartu Keluarga, NPWP, NIB, dan Rekening Bank resmi untuk verifikasi program TKML.
         </Text>
-
-        {/* Sub-tab Toggle Pill */}
-        <View style={styles.tabToggle}>
-          <TouchableOpacity
-            style={[styles.toggleBtn, activeSubTab === 'berkas' && styles.toggleBtnActive]}
-            onPress={() => setActiveSubTab('berkas')}>
-            <FileText
-              size={16}
-              color={activeSubTab === 'berkas' ? ColorPalette.primary[700] : ColorPalette.slate[500]}
-            />
-            <Text
-              style={[
-                styles.toggleText,
-                activeSubTab === 'berkas' && styles.toggleTextActive,
-              ]}>
-              Dokumen Persyaratan ({berkasList.length})
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.toggleBtn, activeSubTab === 'usaha' && styles.toggleBtnActive]}
-            onPress={() => setActiveSubTab('usaha')}>
-            <Building2
-              size={16}
-              color={activeSubTab === 'usaha' ? ColorPalette.primary[700] : ColorPalette.slate[500]}
-            />
-            <Text
-              style={[
-                styles.toggleText,
-                activeSubTab === 'usaha' && styles.toggleTextActive,
-              ]}>
-              Profil Usaha & Produk
-            </Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
       {/* Main Content */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        {activeSubTab === 'berkas' ? (
-          <View style={styles.berkasList}>
-            {berkasList.map((item) => (
-              <BerkasCard
-                key={item.id}
-                item={item}
-                onPressUpload={handleOpenUpload}
-                onPressPreview={handleOpenPreview}
-              />
-            ))}
+        {berkasRevisiCount > 0 && (
+          <View style={styles.revisiBanner}>
+            <AlertCircle size={18} color={ColorPalette.rose[700]} />
+            <Text style={styles.revisiBannerText}>
+              Ada {berkasRevisiCount} berkas yang memerlukan perbaikan/unggah ulang sesuai catatan verifikator Kemnaker.
+            </Text>
           </View>
-        ) : (
-          <UsahaProdukSection />
         )}
+
+        <View style={styles.berkasList}>
+          {berkasList.map((item) => (
+            <BerkasCard
+              key={item.id}
+              item={item}
+              onPressUpload={handleOpenUpload}
+              onPressPreview={handleOpenPreview}
+            />
+          ))}
+        </View>
       </ScrollView>
 
       {/* Upload Bottom Sheet Modal */}
@@ -164,11 +134,11 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
+    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: ColorPalette.slate[200],
     backgroundColor: '#FFFFFF',
-    gap: 6,
+    gap: 4,
   },
   headerTitle: {
     fontSize: 20,
@@ -180,45 +150,29 @@ const styles = StyleSheet.create({
     color: ColorPalette.slate[500],
     lineHeight: 18,
   },
-  tabToggle: {
-    flexDirection: 'row',
-    backgroundColor: ColorPalette.slate[100],
-    borderRadius: 12,
-    padding: 4,
-    marginTop: 10,
-    gap: 4,
-  },
-  toggleBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 8,
-    gap: 6,
-  },
-  toggleBtnActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: ColorPalette.slate[900],
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  toggleText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: ColorPalette.slate[600],
-  },
-  toggleTextActive: {
-    color: ColorPalette.primary[700],
-    fontWeight: '700',
-  },
   scrollContent: {
     padding: 16,
     backgroundColor: ColorPalette.slate[50],
     minHeight: '100%',
     paddingBottom: 40,
+    gap: 10,
+  },
+  revisiBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: ColorPalette.rose[50],
+    borderWidth: 1,
+    borderColor: ColorPalette.rose[300],
+    padding: 12,
+    borderRadius: 12,
+  },
+  revisiBannerText: {
+    fontSize: 12,
+    color: ColorPalette.rose[900],
+    fontWeight: '600',
+    flex: 1,
+    lineHeight: 16,
   },
   berkasList: {
     gap: 8,
