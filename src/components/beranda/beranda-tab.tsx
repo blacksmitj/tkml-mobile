@@ -14,7 +14,15 @@ import { UserHeader } from '@/components/beranda/user-header';
 import { ProgressStepper } from '@/components/beranda/progress-stepper';
 import { ActionCenterNotifications } from '@/components/beranda/action-center-notifications';
 import { ProgramMenuGrid } from '@/components/beranda/program-menu-grid';
-import { Store, ChevronRight, Sparkles } from 'lucide-react-native';
+import {
+  Store,
+  ChevronRight,
+  Sparkles,
+  QrCode,
+  ScanLine,
+  MapPin,
+  CalendarCheck,
+} from 'lucide-react-native';
 
 interface BerandaTabProps {
   onOpenBerkas: () => void;
@@ -26,6 +34,7 @@ interface BerandaTabProps {
   onOpenKaryawan: () => void;
   onOpenRAB: () => void;
   onOpenBizHub: () => void;
+  onOpenPresensi: () => void;
 }
 
 export const BerandaTab: React.FC<BerandaTabProps> = ({
@@ -38,8 +47,23 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
   onOpenKaryawan,
   onOpenRAB,
   onOpenBizHub,
+  onOpenPresensi,
 }) => {
-  const { user, berkasList, karyawanList, rabList, lpjList, bizHubAds } = useTKMLStore();
+  const {
+    user,
+    berkasList,
+    karyawanList,
+    rabList,
+    lpjList,
+    bizHubAds,
+    sesiPresensiList,
+    riwayatPresensiList,
+  } = useTKMLStore();
+
+  const activeSesi = sesiPresensiList.find((s) => s.status === 'aktif');
+  const hasAttendedActiveSesi = activeSesi
+    ? riwayatPresensiList.some((r) => r.sesiId === activeSesi.id)
+    : false;
 
   const berkasPerluRevisi = berkasList.filter((b) => b.status === 'perlu_revisi');
   const isProfilIncomplete =
@@ -101,6 +125,36 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
             onOpenRekening={onOpenRekening}
           />
 
+          {/* Quick Action Banner: Scan Presensi Kehadiran QR */}
+          <TouchableOpacity
+            style={styles.presensiBanner}
+            activeOpacity={0.85}
+            onPress={onOpenPresensi}>
+            <View style={styles.presensiBannerLeft}>
+              <View style={styles.presensiIconBox}>
+                <ScanLine size={24} color="#FFFFFF" />
+              </View>
+              <View style={styles.presensiTextWrap}>
+                <View style={styles.presensiTitleRow}>
+                  <Text style={styles.presensiTitle}>Presensi QR Sesi Pelatihan</Text>
+                  {hasAttendedActiveSesi ? (
+                    <View style={styles.attendedMiniBadge}>
+                      <Text style={styles.attendedMiniText}>Sudah Hadir</Text>
+                    </View>
+                  ) : activeSesi ? (
+                    <View style={styles.activeMiniBadge}>
+                      <Text style={styles.activeMiniText}>Sesi Aktif</Text>
+                    </View>
+                  ) : null}
+                </View>
+                <Text style={styles.presensiSubtitle} numberOfLines={1}>
+                  {activeSesi ? activeSesi.judulSesi : 'Cek jadwal & scan QR kehadiran bimtek'}
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={ColorPalette.emerald[800]} />
+          </TouchableOpacity>
+
           {/* Banner Shortcut ke BizHub (Bisnis Hub) */}
           <TouchableOpacity
             style={styles.bizhubBanner}
@@ -128,10 +182,13 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
             onOpenBerkas={onOpenBerkas}
             onOpenKaryawan={onOpenKaryawan}
             onOpenRAB={onOpenRAB}
+            onOpenPresensi={onOpenPresensi}
             jumlahRevisi={berkasPerluRevisi.length}
             totalKaryawan={totalKaryawan}
             totalDisabilitas={totalDisabilitas}
             progressLPJPercent={progressLPJPercent}
+            totalPresensi={riwayatPresensiList.length}
+            hasActiveSesi={!!activeSesi}
           />
         </View>
       </ScrollView>
@@ -203,5 +260,76 @@ const styles = StyleSheet.create({
     color: ColorPalette.primary[200],
     marginTop: 2,
     lineHeight: 16,
+  },
+  presensiBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#ECFDF5',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: ColorPalette.emerald[300],
+    shadowColor: ColorPalette.emerald[900],
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  presensiBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+    marginRight: 6,
+  },
+  presensiIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: ColorPalette.emerald[600],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  presensiTextWrap: {
+    flex: 1,
+  },
+  presensiTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  presensiTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: ColorPalette.emerald[900],
+  },
+  presensiSubtitle: {
+    fontSize: 12,
+    color: ColorPalette.emerald[700],
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  activeMiniBadge: {
+    backgroundColor: ColorPalette.emerald[200],
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  activeMiniText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: ColorPalette.emerald[900],
+  },
+  attendedMiniBadge: {
+    backgroundColor: ColorPalette.blue[100],
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  attendedMiniText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: ColorPalette.blue[800],
   },
 });

@@ -23,6 +23,7 @@ interface PasangIklanModalProps {
   userNamaUsaha: string;
   userNamaPemilik: string;
   userIdTKML: string;
+  userSektorUsaha?: string;
   userDaerah?: string;
   userNoHp?: string;
 }
@@ -42,11 +43,13 @@ export const PasangIklanModal: React.FC<PasangIklanModalProps> = ({
   userNamaUsaha,
   userNamaPemilik,
   userIdTKML,
+  userSektorUsaha = 'Kuliner & Pengolahan Pangan',
   userDaerah = 'Kab. Bandung Barat',
   userNoHp = '6281234567890',
 }) => {
   const [judulProduk, setJudulProduk] = useState('');
   const [kategori, setKategori] = useState<KategoriBizHub>('bahan_baku');
+  const [sektorUsaha, setSektorUsaha] = useState(userSektorUsaha);
   const [deskripsi, setDeskripsi] = useState('');
   const [harga, setHarga] = useState('');
   const [satuanHarga, setSatuanHarga] = useState('per kg');
@@ -96,6 +99,7 @@ export const PasangIklanModal: React.FC<PasangIklanModalProps> = ({
         idTKML: userIdTKML,
         judulProduk,
         kategori,
+        sektorUsaha: sektorUsaha || userSektorUsaha,
         deskripsi,
         harga: parseInt(harga.replace(/[^0-9]/g, ''), 10) || 0,
         satuanHarga,

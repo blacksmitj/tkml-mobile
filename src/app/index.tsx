@@ -15,6 +15,7 @@ import { KaryawanTab } from '@/components/karyawan/karyawan-tab';
 import { RabTab } from '@/components/rab/rab-tab';
 import { BizHubTab } from '@/components/bizhub/bizhub-tab';
 import { AkunTab } from '@/components/akun/akun-tab';
+import { PresensiScreen } from '@/components/presensi/presensi-screen';
 import { AppTabsNavigation } from '@/components/navigation/app-tabs-nav';
 import { ToastNotification } from '@/components/ui/toast-notification';
 import { ArrowLeft } from 'lucide-react-native';
@@ -33,6 +34,7 @@ export default function HomeScreen() {
     | 'produk'
     | 'karyawan'
     | 'rab'
+    | 'presensi'
     | null
   >(null);
 
@@ -138,6 +140,14 @@ export default function HomeScreen() {
         </View>
       );
     }
+    if (activeSubScreen === 'presensi') {
+      return (
+        <View style={{ flex: 1 }}>
+          {renderSubScreenHeader('Presensi Kehadiran Pelatihan (QR)')}
+          <PresensiScreen />
+        </View>
+      );
+    }
 
     // 3 Primary Tabs
     switch (currentTab) {
@@ -153,6 +163,7 @@ export default function HomeScreen() {
             onOpenKaryawan={() => setActiveSubScreen('karyawan')}
             onOpenRAB={() => setActiveSubScreen('rab')}
             onOpenBizHub={() => setCurrentTab(1)}
+            onOpenPresensi={() => setActiveSubScreen('presensi')}
           />
         );
       case 1:
@@ -185,6 +196,7 @@ export default function HomeScreen() {
             onOpenKaryawan={() => setActiveSubScreen('karyawan')}
             onOpenRAB={() => setActiveSubScreen('rab')}
             onOpenBizHub={() => setCurrentTab(1)}
+            onOpenPresensi={() => setActiveSubScreen('presensi')}
           />
         );
     }

@@ -8,33 +8,69 @@ import {
   Building2,
   ChevronRight,
   ShieldAlert,
+  QrCode,
+  ScanLine,
 } from 'lucide-react-native';
 
 interface ProgramMenuGridProps {
   onOpenBerkas: () => void;
   onOpenKaryawan: () => void;
   onOpenRAB: () => void;
+  onOpenPresensi: () => void;
   jumlahRevisi: number;
   totalKaryawan: number;
   totalDisabilitas: number;
   progressLPJPercent: number;
+  totalPresensi: number;
+  hasActiveSesi: boolean;
 }
 
 export const ProgramMenuGrid: React.FC<ProgramMenuGridProps> = ({
   onOpenBerkas,
   onOpenKaryawan,
   onOpenRAB,
+  onOpenPresensi,
   jumlahRevisi,
   totalKaryawan,
   totalDisabilitas,
   progressLPJPercent,
+  totalPresensi,
+  hasActiveSesi,
 }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Menu Utama Program TKML</Text>
 
-      {/* Grid 3 Kartu Menu Program */}
+      {/* Grid Menu Program */}
       <View style={styles.grid}>
+        {/* Menu 0: Scan Presensi Kehadiran QR */}
+        <TouchableOpacity
+          style={styles.menuCard}
+          activeOpacity={0.8}
+          onPress={onOpenPresensi}>
+          <View style={[styles.iconBox, { backgroundColor: ColorPalette.emerald[50] }]}>
+            <ScanLine size={24} color={ColorPalette.emerald[700]} />
+          </View>
+          <View style={styles.cardContent}>
+            <View style={styles.titleRow}>
+              <Text style={styles.cardTitle}>Presensi Kehadiran (QR)</Text>
+              {hasActiveSesi ? (
+                <View style={styles.activeSesiBadge}>
+                  <Text style={styles.activeSesiBadgeText}>Sesi Aktif</Text>
+                </View>
+              ) : (
+                <View style={styles.presensiCountBadge}>
+                  <Text style={styles.presensiCountText}>{totalPresensi} Hadir</Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.cardSubtitle}>
+              Scan QR Sesi Bimtek & Pendampingan TKML
+            </Text>
+          </View>
+          <ChevronRight size={18} color={ColorPalette.slate[400]} />
+        </TouchableOpacity>
+
         {/* Menu 1: Berkas & Usaha */}
         <TouchableOpacity
           style={styles.menuCard}
@@ -195,5 +231,27 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: ColorPalette.emerald[800],
+  },
+  activeSesiBadge: {
+    backgroundColor: ColorPalette.emerald[100],
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  activeSesiBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: ColorPalette.emerald[800],
+  },
+  presensiCountBadge: {
+    backgroundColor: ColorPalette.slate[100],
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  presensiCountText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: ColorPalette.slate[700],
   },
 });

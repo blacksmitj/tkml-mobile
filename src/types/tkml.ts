@@ -150,6 +150,15 @@ export type KategoriBizHub =
   | 'jasa_maklon'
   | 'produk_jadi';
 
+export type SektorUsahaBizHub =
+  | 'semua'
+  | 'Kuliner & Pengolahan Pangan'
+  | 'Pertanian & Agribisnis'
+  | 'Kemasan & Percetakan'
+  | 'Fashion & Tekstil'
+  | 'Kriya & Kerajinan'
+  | 'Jasa & Manufaktur';
+
 export type BizHubAd = {
   id: string;
   namaUsaha: string;
@@ -157,6 +166,7 @@ export type BizHubAd = {
   idTKML: string;
   judulProduk: string;
   kategori: KategoriBizHub;
+  sektorUsaha: string;
   deskripsi: string;
   harga: number;
   satuanHarga: string;
@@ -167,4 +177,82 @@ export type BizHubAd = {
   isVerifiedTKML: boolean;
   b2bReady: boolean;
   createdAt: string;
+};
+
+export type TipeMilestoneBizHub = 'omzet' | 'karyawan' | 'omzet_dan_karyawan' | 'ekspansi';
+
+export type BizHubMilestone = {
+  id: string;
+  idTKML: string;
+  namaUsaha: string;
+  namaPemilik: string;
+  sektorUsaha: string;
+  lokasiDaerah: string;
+  jarakKm: number;
+  tipeUpdate: TipeMilestoneBizHub;
+  judul: string;
+  deskripsi: string;
+  omzetBulanIni?: number;
+  kenaikanOmzetPersen?: number;
+  penambahanKaryawan?: number;
+  totalKaryawanSekarang?: number;
+  fotoUri?: string;
+  isVerifiedTKML: boolean;
+  noWhatsapp?: string;
+  likesCount: number;
+  isLiked?: boolean;
+  createdAt: string;
+};
+
+export type BizHubFilterState = {
+  sektorUsaha: string;
+  kategori: KategoriBizHub;
+  radiusKm: number;
+  sortBy: 'terbaru' | 'terdekat' | 'omzet_tertinggi';
+};
+
+// ==========================================
+// Fitur Presensi Kehadiran QR Code TKML
+// ==========================================
+
+export type StatusKehadiran = 'hadir_tepat_waktu' | 'hadir_terlambat' | 'di_luar_radius';
+export type MetodePresensi = 'qr_camera' | 'kode_manual' | 'demo_simulasi';
+export type KategoriSesiPresensi = 'bimtek' | 'pendampingan' | 'evaluasi' | 'verifikasi_lapangan';
+export type StatusSesi = 'aktif' | 'selesai' | 'akan_datang';
+
+export type SesiPresensi = {
+  id: string;
+  judulSesi: string;
+  namaFasilitator: string;
+  instansi: string;
+  lokasiNama: string;
+  alamatLokasi: string;
+  latitude: number;
+  longitude: number;
+  radiusMeter: number;
+  tanggal: string;
+  jamMulai: string;
+  jamSelesai: string;
+  tokenQR: string;
+  kategori: KategoriSesiPresensi;
+  status: StatusSesi;
+  deskripsi: string;
+  totalPesertaHadir: number;
+  kuotaPeserta: number;
+};
+
+export type RiwayatPresensi = {
+  id: string;
+  sesiId: string;
+  judulSesi: string;
+  kategoriSesi: KategoriSesiPresensi;
+  lokasiNama: string;
+  waktuScan: string;
+  statusKehadiran: StatusKehadiran;
+  jarakMeter: number;
+  latitude?: number;
+  longitude?: number;
+  metode: MetodePresensi;
+  tokenQR: string;
+  catatan?: string;
 };

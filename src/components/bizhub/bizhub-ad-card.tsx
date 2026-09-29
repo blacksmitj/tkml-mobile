@@ -63,7 +63,7 @@ export const BizHubAdCard: React.FC<BizHubAdCardProps> = ({ ad }) => {
               {ad.namaUsaha}
             </Text>
             <Text style={styles.ownerName}>
-              {ad.namaPemilik} • ID: {ad.idTKML}
+              {ad.namaPemilik} • <Text style={styles.sectorHighlight}>{ad.sektorUsaha || 'TKML Mandiri'}</Text>
             </Text>
           </View>
           {ad.isVerifiedTKML && (
@@ -189,6 +189,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: ColorPalette.slate[400],
     marginTop: 1,
+  },
+  sectorHighlight: {
+    color: ColorPalette.primary[700],
+    fontWeight: '600',
   },
   verifiedChip: {
     flexDirection: 'row',
