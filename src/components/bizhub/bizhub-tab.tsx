@@ -1,37 +1,34 @@
-import React, { useState, useMemo } from 'react';
+import { BagikanKabarModal } from '@/components/bizhub/bagikan-kabar-modal';
+import { BizHubAdCard } from '@/components/bizhub/bizhub-ad-card';
+import { BizHubFilterModal } from '@/components/bizhub/bizhub-filter-modal';
+import { BizHubMilestoneCard } from '@/components/bizhub/bizhub-milestone-card';
+import { PasangIklanModal } from '@/components/bizhub/pasang-iklan-modal';
+import { ColorPalette } from '@/constants/colors';
+import { useTKMLStore } from '@/stores/tkml-store';
+import { BizHubAd, BizHubFilterState, BizHubMilestone } from '@/types/tkml';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
+  MapPin,
+  Plus,
+  PlusCircle,
+  Search,
+  ShoppingBag,
+  SlidersHorizontal,
+  Sparkles,
+  Store,
+  TrendingUp,
+  X
+} from 'lucide-react-native';
+import React, { useMemo, useState } from 'react';
+import {
   Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTKMLStore } from '@/stores/tkml-store';
-import { BizHubAd, BizHubMilestone, BizHubFilterState } from '@/types/tkml';
-import { ColorPalette } from '@/constants/colors';
-import { BizHubAdCard } from '@/components/bizhub/bizhub-ad-card';
-import { BizHubMilestoneCard } from '@/components/bizhub/bizhub-milestone-card';
-import { BizHubFilterModal } from '@/components/bizhub/bizhub-filter-modal';
-import { PasangIklanModal } from '@/components/bizhub/pasang-iklan-modal';
-import { BagikanKabarModal } from '@/components/bizhub/bagikan-kabar-modal';
-import {
-  Store,
-  Plus,
-  Search,
-  SlidersHorizontal,
-  MapPin,
-  Sparkles,
-  ShoppingBag,
-  TrendingUp,
-  Award,
-  Layers,
-  X,
-  PlusCircle,
-  Share2,
-} from 'lucide-react-native';
 
 type FeedTabType = 'semua' | 'produk' | 'kabar_usaha';
 
@@ -189,7 +186,7 @@ export const BizHubTab: React.FC = () => {
           <View style={styles.titleWrap}>
             <View style={styles.logoRow}>
               <Store size={22} color={ColorPalette.primary[700]} />
-              <Text style={styles.headerTitle}>Bisnis Hub (BizHub)</Text>
+              <Text style={styles.headerTitle}>BizHub</Text>
             </View>
             <Text style={styles.headerSubtitle}>
               Direktori produk, rantai pasok B2B & kabar capaian usaha TKML.

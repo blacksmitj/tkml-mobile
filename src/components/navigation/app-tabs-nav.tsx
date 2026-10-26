@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ColorPalette } from '@/constants/colors';
 import {
   Home,
   Store,
   User,
 } from 'lucide-react-native';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface AppTabsNavigationProps {
   currentTab: number;
@@ -18,7 +18,7 @@ export const AppTabsNavigation: React.FC<AppTabsNavigationProps> = ({
 }) => {
   const tabs = [
     { label: 'Beranda', icon: Home },
-    { label: 'BizHub (B2B)', icon: Store },
+    { label: 'BizHub', icon: Store },
     { label: 'Akun', icon: User },
   ];
 

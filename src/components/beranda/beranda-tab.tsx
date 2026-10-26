@@ -1,28 +1,25 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTKMLStore } from '@/stores/tkml-store';
-import { ColorPalette } from '@/constants/colors';
-import { UserHeader } from '@/components/beranda/user-header';
-import { ProgressStepper } from '@/components/beranda/progress-stepper';
 import { ActionCenterNotifications } from '@/components/beranda/action-center-notifications';
 import { ProgramMenuGrid } from '@/components/beranda/program-menu-grid';
+import { ProgressStepper } from '@/components/beranda/progress-stepper';
+import { UserHeader } from '@/components/beranda/user-header';
+import { ColorPalette } from '@/constants/colors';
+import { useTKMLStore } from '@/stores/tkml-store';
+import { StatusBar } from 'expo-status-bar';
 import {
-  Store,
   ChevronRight,
-  Sparkles,
-  QrCode,
   ScanLine,
-  MapPin,
-  CalendarCheck,
+  Sparkles,
+  Store
 } from 'lucide-react-native';
+import React from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface BerandaTabProps {
   onOpenBerkas: () => void;
@@ -92,7 +89,7 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={ColorPalette.primary[700]} />
+      <StatusBar style="light" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
@@ -166,7 +163,7 @@ export const BerandaTab: React.FC<BerandaTabProps> = ({
               </View>
               <View style={styles.bizhubTextWrap}>
                 <View style={styles.bizhubTitleRow}>
-                  <Text style={styles.bizhubTitle}>Bisnis Hub (BizHub)</Text>
+                  <Text style={styles.bizhubTitle}>BizHub</Text>
                   <Sparkles size={14} color={ColorPalette.amber[300]} />
                 </View>
                 <Text style={styles.bizhubSubtitle}>
